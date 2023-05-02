@@ -1,0 +1,7 @@
+S,0,1,0,true
+S,1,8,40,true
+S,8,24,60,true
+S,-1,-1,80,false
+M,0,12,60,true
+M,12,24,80,true
+M,-1,-1,100,false

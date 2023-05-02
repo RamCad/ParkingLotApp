@@ -1,6 +1,7 @@
 package com.poc.parkinglot.service;
 
 import com.poc.parkinglot.config.FeeModal;
+import com.poc.parkinglot.config.Modal;
 import com.poc.parkinglot.exception.InvalidParkingTicketException;
 import com.poc.parkinglot.exception.SpotNotAvailableException;
 import com.poc.parkinglot.model.ParkingReceipt;
@@ -98,7 +99,7 @@ public class ParkingLotService {
     // refactor
     parkingTicket.getSpot().setVehicle(null);
     parkingTicket.getSpot().setOccupied(false);
-    parkingTickets.remove(ticketNum); //
+    parkingTickets.remove(ticketNum);
     parkingReceipts.put(receiptNum, receipt);
     return receipt;
   }
@@ -114,8 +115,24 @@ public class ParkingLotService {
   private Long calculateFees(LocalDateTime entryTime, LocalDateTime exitTime, String feeModal,
       SpotSize spotSize) {
     Duration timeDiff = Duration.between(entryTime, exitTime);
-    Map<SpotSize, Integer> mallModal = FeeModal.getMallModal(); // to do - generic using feeModal
-    Integer fee = mallModal.get(spotSize);
-    return timeDiff.toHours() * fee;
+    long inHours = timeDiff.toHours();
+    Map<SpotSize, List<Modal>> feeModalData = FeeModal.getFeeModalData(feeModal); // to do - generic using feeModal
+    List<Modal> modals = feeModalData.get(spotSize);
+    Integer fee = 0;
+    if(modals.size() == 1) {
+      fee = modals.get(0).getFee();
+    } else {
+      modals.stream()
+          .filter(m -> findRange(m.getStartInterval(), m.getEndInterval(), inHours))
+          .findFirst();
+    }
+    if (inHours == 1) {
+
+    }
+    return  inHours * fee;
+  }
+
+  private boolean findRange(Long startIdx, Long endIdx, Long number) {
+    return (startIdx <= number && number < endIdx);
   }
 }
