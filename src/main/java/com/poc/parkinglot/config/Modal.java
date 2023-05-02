@@ -10,6 +10,6 @@ public class Modal {
   private SpotSize size;
   private Long startInterval;
   private Long endInterval;
-  private Integer fee;
+  private Long fee;
   private boolean isFlatRate;
 }

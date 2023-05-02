@@ -16,7 +16,7 @@ public class ParkingLotServiceTest {
     Integer smallVehicles = 2;
     Integer mediumVehicles = 2;
     Integer largeVehicles = 0;
-    String feeModal = "Mall";
+    String feeModal = "mall";
 
     ParkingLotService parkingLotService = new ParkingLotService(smallVehicles, mediumVehicles, largeVehicles, feeModal);
 

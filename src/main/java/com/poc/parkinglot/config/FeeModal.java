@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 
 /**
  * Assumptions as per prepared data
- * If startIdx, lastIdx 0 - per hour flat
- * If lastIdx -1 - per hour rate
  * If startIdx, lastIdx -1 - per day rate
  */
 public class FeeModal {
@@ -38,7 +36,7 @@ public class FeeModal {
         Modal modal = Modal.builder()
             .startInterval(Long.parseLong(values[0]))
             .endInterval(Long.parseLong(values[1]))
-            .fee(Integer.parseInt(values[2]))
+            .fee(Long.parseLong(values[2]))
             .isFlatRate(Boolean.parseBoolean(values[3]))
             .build();
         records.add(modal);

@@ -36,7 +36,7 @@ public class ParkingLotService {
     this.smallVehicles = smallVehicles;
     this.mediumVehicles = mediumVehicles;
     this.largeVehicles = largeVehicles;
-    this.feeModal = feeModal; // TODO - can be converted to Enum
+    this.feeModal = feeModal; // can be converted to Enum
     init();
   }
 
@@ -85,7 +85,7 @@ public class ParkingLotService {
     }
     LocalDateTime exitTime = LocalDateTime.now();
 
-    // TODO - calculate fees
+    // calculate fees
     Long fees = calculateFees(parkingTicket.getEntryTime(), exitTime, feeModal,
         parkingTicket.getSpot().getSize());
     Integer receiptNum = parkingReceipts.size() + 1;
@@ -112,24 +112,31 @@ public class ParkingLotService {
         .orElseGet(() -> null);
   }
 
+  //
   private Long calculateFees(LocalDateTime entryTime, LocalDateTime exitTime, String feeModal,
       SpotSize spotSize) {
     Duration timeDiff = Duration.between(entryTime, exitTime);
-    long inHours = timeDiff.toHours();
-    Map<SpotSize, List<Modal>> feeModalData = FeeModal.getFeeModalData(feeModal); // to do - generic using feeModal
+    Map<SpotSize, List<Modal>> feeModalData = FeeModal.getFeeModalData(feeModal); // make it generic using feeModal
     List<Modal> modals = feeModalData.get(spotSize);
-    Integer fee = 0;
+    Modal modal;
     if(modals.size() == 1) {
-      fee = modals.get(0).getFee();
+      modal = modals.get(0);
     } else {
-      modals.stream()
-          .filter(m -> findRange(m.getStartInterval(), m.getEndInterval(), inHours))
-          .findFirst();
+      modal = modals.stream()
+          .filter(m -> findRange(m.getStartInterval(), m.getEndInterval(), timeDiff.toHours()))
+          .findFirst()
+          .orElseGet(() -> modals.get(modals.size() - 1));
     }
-    if (inHours == 1) {
+    return getFees(modal, timeDiff);
+  }
 
+  private Long getFees(Modal modal, Duration timeDiff) {
+    if (modal.isFlatRate()) {
+      return modal.getFee();
+    } else if(modal.getStartInterval() == -1 && modal.getEndInterval() == -1) {
+      return timeDiff.toDays() * modal.getFee();
     }
-    return  inHours * fee;
+    return timeDiff.toHours() == 0 ? modal.getFee() : timeDiff.toHours() * modal.getFee();
   }
 
   private boolean findRange(Long startIdx, Long endIdx, Long number) {
